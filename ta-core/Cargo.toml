@@ -1,0 +1,11 @@
+[package]
+name = "ta-core"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ta-render-engine = { path = "../ta-render-engine/" }
+
+ratatui = { workspace = true }

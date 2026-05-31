@@ -1,0 +1,11 @@
+# Group imports into std / external / crate
+group_imports = "StdExternalCrate"
+
+# Merge imports from the same path
+imports_granularity = "Crate"
+
+# Reorder imports automatically
+reorder_imports = true
+
+# Ensure blank lines between groups
+imports_layout = "Mixed"

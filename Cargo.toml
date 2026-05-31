@@ -1,0 +1,14 @@
+[workspace]
+resolver = "3"
+members = ["ta-*"]
+
+[workspace.package]
+version = "0.1.0"
+authors = ["Pépe Hanisch"]
+license = "UNLICENSED"
+edition = "2024"
+
+[workspace.dependencies]
+image = "=0.25.10"
+ratatui = "=0.30.0"
+ab_glyph = "=0.2.32"

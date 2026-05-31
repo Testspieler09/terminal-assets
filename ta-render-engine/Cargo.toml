@@ -1,0 +1,11 @@
+[package]
+name = "ta-render-engine"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+image = { workspace = true }
+ratatui = { workspace = true }
+ab_glyph = { workspace = true }
