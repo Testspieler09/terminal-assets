@@ -5,19 +5,24 @@ use crate::cli_args::RenderMode;
 
 pub(crate) mod cli_args;
 pub(crate) mod content;
+pub(crate) mod tui;
 
-fn main() {
+fn main() -> Result<(), std::io::Error> {
     let args = cli_args::CliArgs::parse();
     let mode = args.mode();
     let all_scenes = content::all_scenes();
 
     let scenes: Vec<&Box<dyn Scene>> = match &mode {
-        RenderMode::All => all_scenes.iter().collect(),
-        RenderMode::Scenes(names) => all_scenes
-            .iter()
-            .filter(|s| names.contains(&s.name().to_string()))
-            .collect(),
-        RenderMode::Interactive => todo!("interactive TUI picker"),
+        RenderMode::All => all_scenes.values().collect(),
+        RenderMode::Scenes(names) => names.iter().filter_map(|n| all_scenes.get(n)).collect(),
+        RenderMode::Interactive => match tui::run_scene_selector(&all_scenes)? {
+            Some(names) if names.is_empty() => {
+                println!("Nothing selected, nothing rendered.");
+                return Ok(());
+            }
+            Some(names) => names.iter().filter_map(|n| all_scenes.get(n)).collect(),
+            None => return Ok(()),
+        },
     };
 
     for scene in scenes {
@@ -31,4 +36,6 @@ fn main() {
             }
         }
     }
+
+    Ok(())
 }
