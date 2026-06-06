@@ -8,4 +8,5 @@ license.workspace = true
 [dependencies]
 ta-render-engine = { path = "../ta-render-engine/" }
 
+clap = { workspace = true }
 ratatui = { workspace = true }
