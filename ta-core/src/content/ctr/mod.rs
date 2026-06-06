@@ -4,8 +4,10 @@ use ratatui::{
     widgets::{Block, Borders, Widget},
 };
 use ta_render_engine::{
-    OutputConfig, Scene, SceneTarget,
-    models::{AspectPreset, FontSettings, Grid, ImageOutput, VideoOutput},
+    Scene, SceneTarget,
+    codec::VideoCodec,
+    color::ColorConfig,
+    models::{AspectPreset, FontSettings, Grid, ImageOutput, OutputConfig, VideoOutput},
 };
 
 pub struct CtrScene;
@@ -27,6 +29,7 @@ impl Scene for CtrScene {
             SceneTarget::new(
                 OutputConfig::Image(ImageOutput::from_preset(AspectPreset::CtrTopScreen, cell)),
                 font.clone(),
+                ColorConfig::default(),
             ),
             // Bottom screen - short video
             SceneTarget::new(
@@ -34,8 +37,10 @@ impl Scene for CtrScene {
                     Grid::from_dimensions(AspectPreset::CtrBottomScreen.into(), cell),
                     30,
                     3 * 30,
+                    VideoCodec::Gif,
                 )),
                 font.clone(),
+                ColorConfig::default(),
             ),
         ]
     }

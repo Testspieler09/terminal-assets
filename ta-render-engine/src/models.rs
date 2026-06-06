@@ -1,5 +1,9 @@
 use std::path::PathBuf;
 
+use ratatui::layout::Rect;
+
+use crate::codec::VideoCodec;
+
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub struct Dimensions {
     pub width: u32,
@@ -125,14 +129,16 @@ pub struct VideoOutput {
     pub grid: Grid,
     pub frames_per_second: u32,
     pub frames: usize,
+    pub codec: VideoCodec,
 }
 
 impl VideoOutput {
-    pub fn new(grid: Grid, frames_per_second: u32, frames: usize) -> Self {
+    pub fn new(grid: Grid, frames_per_second: u32, frames: usize, codec: VideoCodec) -> Self {
         Self {
             grid,
             frames_per_second,
             frames,
+            codec,
         }
     }
 
@@ -158,5 +164,31 @@ impl FontSettings {
     /// once you can load the font (call [`ab_glyph::Font::glyph_bounds`]).
     pub fn estimated_cell_size(&self) -> CellSize {
         CellSize::default()
+    }
+}
+
+/// What a target produces.
+#[derive(Clone)]
+pub enum OutputConfig {
+    Image(ImageOutput),
+    Video(VideoOutput),
+}
+
+impl OutputConfig {
+    pub fn grid(&self) -> &crate::models::Grid {
+        match self {
+            Self::Image(i) => &i.grid,
+            Self::Video(v) => &v.grid,
+        }
+    }
+
+    pub fn rect(&self) -> Rect {
+        let grid = self.grid();
+        Rect {
+            x: 0,
+            y: 0,
+            width: grid.columns as u16,
+            height: grid.rows as u16,
+        }
     }
 }

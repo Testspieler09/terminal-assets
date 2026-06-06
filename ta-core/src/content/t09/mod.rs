@@ -4,8 +4,9 @@ use ratatui::{
     widgets::{Block, Borders, Widget},
 };
 use ta_render_engine::{
-    OutputConfig, Scene, SceneTarget,
-    models::{AspectPreset, FontSettings, ImageOutput},
+    Scene, SceneTarget,
+    color::ColorConfig,
+    models::{AspectPreset, FontSettings, ImageOutput, OutputConfig},
 };
 
 pub struct T09Scene;
@@ -25,6 +26,7 @@ impl Scene for T09Scene {
         vec![SceneTarget::new(
             OutputConfig::Image(ImageOutput::from_preset(AspectPreset::SixteenToNine, cell)),
             font.clone(),
+            ColorConfig::default(),
         )]
     }
 

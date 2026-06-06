@@ -1,5 +1,10 @@
 use clap::Parser;
-use ta_render_engine::Scene;
+use ta_render_engine::{
+    Scene,
+    codec::{VideoCodec, encode_video},
+    models::OutputConfig,
+    raster::Rasterizer,
+};
 
 use crate::cli_args::RenderMode;
 
@@ -25,14 +30,33 @@ fn main() -> Result<(), std::io::Error> {
         },
     };
 
-    for scene in scenes {
-        for target in scene.targets() {
+    for scene in &scenes {
+        let scene_out = args.output.join(scene.name());
+        std::fs::create_dir_all(&scene_out).unwrap();
+
+        for (target_index, target) in scene.targets().iter().enumerate() {
+            let target_dir = scene_out.join(format!("target_{target_index:02}"));
+            std::fs::create_dir_all(&target_dir).unwrap();
+
+            let rasterizer = Rasterizer::new(&target.font).unwrap();
+
             for frame in 0..target.frame_count() {
-                let buffer = scene.render_frame(&target, frame);
-                // next step: rasterize buffer → RgbaImage via ab_glyph
-                // then: write frame to args.output / scene.name() / frame_XXXX.png
-                // then: encode via ffmpeg if VideoOutput
-                let _ = (buffer, frame, &args.output);
+                let buffer = scene.render_frame(target, frame);
+                let img = rasterizer.rasterize(&buffer, &target.colors).unwrap();
+
+                let frame_path = target_dir.join(format!("frame_{frame:04}.png"));
+                img.save(&frame_path).unwrap();
+            }
+
+            // encode video if needed
+            if let OutputConfig::Video(ref video) = target.output {
+                let ext = match &video.codec {
+                    VideoCodec::H264 { .. } => "mp4",
+                    VideoCodec::Vp9 { .. } => "webm",
+                    VideoCodec::Gif => "gif",
+                };
+                let output_file = scene_out.join(format!("target_{target_index:02}.{ext}"));
+                encode_video(&target_dir, &output_file, video, &video.codec, None).unwrap();
             }
         }
     }

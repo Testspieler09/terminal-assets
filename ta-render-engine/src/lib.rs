@@ -1,45 +1,29 @@
 pub mod codec;
+pub mod color;
 pub mod models;
+pub mod raster;
 
 use ratatui::{buffer::Buffer, layout::Rect};
 
-use crate::models::{FontSettings, ImageOutput, VideoOutput};
-
-/// What a target produces.
-#[derive(Clone)]
-pub enum OutputConfig {
-    Image(ImageOutput),
-    Video(VideoOutput),
-}
-
-impl OutputConfig {
-    pub fn grid(&self) -> &crate::models::Grid {
-        match self {
-            Self::Image(i) => &i.grid,
-            Self::Video(v) => &v.grid,
-        }
-    }
-
-    pub fn rect(&self) -> Rect {
-        let grid = self.grid();
-        Rect {
-            x: 0,
-            y: 0,
-            width: grid.columns as u16,
-            height: grid.rows as u16,
-        }
-    }
-}
+use crate::{
+    color::ColorConfig,
+    models::{FontSettings, OutputConfig},
+};
 
 /// A single render target: one output config, one font, one layout.
 pub struct SceneTarget {
     pub output: OutputConfig,
     pub font: FontSettings,
+    pub colors: ColorConfig,
 }
 
 impl SceneTarget {
-    pub fn new(output: OutputConfig, font: FontSettings) -> Self {
-        Self { output, font }
+    pub fn new(output: OutputConfig, font: FontSettings, colors: ColorConfig) -> Self {
+        Self {
+            output,
+            font,
+            colors,
+        }
     }
 
     /// Total frames to render. Images are always 1.
