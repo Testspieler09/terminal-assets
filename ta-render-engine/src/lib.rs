@@ -1,5 +1,6 @@
 pub mod codec;
 pub mod color;
+mod font_cache;
 pub mod models;
 pub mod raster;
 
