@@ -12,7 +12,7 @@ pub(crate) mod cli_args;
 pub(crate) mod content;
 pub(crate) mod tui;
 
-fn main() -> Result<(), std::io::Error> {
+fn main() -> anyhow::Result<()> {
     let args = cli_args::CliArgs::parse();
     let mode = args.mode();
     let all_scenes = content::all_scenes();
@@ -32,20 +32,20 @@ fn main() -> Result<(), std::io::Error> {
 
     for scene in &scenes {
         let scene_out = args.output.join(scene.name());
-        std::fs::create_dir_all(&scene_out).unwrap();
+        std::fs::create_dir_all(&scene_out)?;
 
         for (target_index, target) in scene.targets().iter().enumerate() {
             let target_dir = scene_out.join(format!("target_{target_index:02}"));
-            std::fs::create_dir_all(&target_dir).unwrap();
+            std::fs::create_dir_all(&target_dir)?;
 
-            let rasterizer = Rasterizer::new(&target.font).unwrap();
+            let rasterizer = Rasterizer::new(&target.font)?;
 
             for frame in 0..target.frame_count() {
                 let buffer = scene.render_frame(target, frame);
-                let img = rasterizer.rasterize(&buffer, &target.colors).unwrap();
+                let img = rasterizer.rasterize(&buffer, &target.colors)?;
 
                 let frame_path = target_dir.join(format!("frame_{frame:04}.png"));
-                img.save(&frame_path).unwrap();
+                img.save(&frame_path)?;
             }
 
             // encode video if needed
@@ -56,7 +56,7 @@ fn main() -> Result<(), std::io::Error> {
                     VideoCodec::Gif => "gif",
                 };
                 let output_file = scene_out.join(format!("target_{target_index:02}.{ext}"));
-                encode_video(&target_dir, &output_file, video, &video.codec, None).unwrap();
+                encode_video(&target_dir, &output_file, video, &video.codec, None)?;
             }
         }
     }
