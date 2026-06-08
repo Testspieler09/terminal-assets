@@ -7,25 +7,21 @@ use crate::{
     models::{CellSize, FontSettings},
 };
 
-pub struct Rasterizer {
-    font: FontVec,
+pub struct Rasterizer<'a> {
+    font: &'a FontVec,
     scale: PxScale,
     cell_size: CellSize,
 }
 
-impl Rasterizer {
-    pub fn new(settings: &FontSettings) -> Result<Self, RasterError> {
-        let bytes =
-            std::fs::read(&settings.font_path).map_err(|e| RasterError::FontLoad(e.to_string()))?;
-        let font =
-            FontVec::try_from_vec(bytes).map_err(|e| RasterError::FontLoad(e.to_string()))?;
+impl<'a> Rasterizer<'a> {
+    pub fn new(settings: &FontSettings, font: &'a FontVec) -> Self {
         let scale = PxScale::from(settings.font_size);
-        let cell_size = measure_cell(&font, scale);
-        Ok(Self {
+        let cell_size = measure_cell(font, scale);
+        Self {
             font,
             scale,
             cell_size,
-        })
+        }
     }
 
     pub fn cell_size(&self) -> CellSize {
@@ -33,11 +29,7 @@ impl Rasterizer {
     }
 
     /// Rasterize a ratatui `Buffer` into an `RgbaImage`.
-    pub fn rasterize(
-        &self,
-        buffer: &Buffer,
-        colors: &ColorConfig,
-    ) -> Result<RgbaImage, RasterError> {
+    pub fn rasterize(&self, buffer: &Buffer, colors: &ColorConfig) -> RgbaImage {
         let cols = buffer.area.width as u32;
         let rows = buffer.area.height as u32;
         let img_w = cols * self.cell_size.width;
@@ -73,7 +65,7 @@ impl Rasterizer {
             }
         }
 
-        Ok(img)
+        img
     }
 
     fn draw_glyph(
@@ -151,20 +143,3 @@ fn blend(base: Rgba<u8>, fg: Rgb, alpha: u8) -> Rgba<u8> {
         255,
     ])
 }
-
-#[derive(Debug)]
-pub enum RasterError {
-    FontLoad(String),
-    ImageWrite(String),
-}
-
-impl std::fmt::Display for RasterError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::FontLoad(e) => write!(f, "font load failed: {e}"),
-            Self::ImageWrite(e) => write!(f, "image write failed: {e}"),
-        }
-    }
-}
-
-impl std::error::Error for RasterError {}

@@ -2,6 +2,7 @@ use clap::Parser;
 use ta_render_engine::{
     Scene,
     codec::{VideoCodec, encode_video},
+    font_cache::FontCache,
     models::OutputConfig,
     raster::Rasterizer,
 };
@@ -34,15 +35,18 @@ fn main() -> anyhow::Result<()> {
         let scene_out = args.output.join(scene.name());
         std::fs::create_dir_all(&scene_out)?;
 
+        let mut font_cache = FontCache::default();
+
         for (target_index, target) in scene.targets().iter().enumerate() {
             let target_dir = scene_out.join(format!("target_{target_index:02}"));
             std::fs::create_dir_all(&target_dir)?;
 
-            let rasterizer = Rasterizer::new(&target.font)?;
+            let font = font_cache.load_and_insert_font(target.font.font_path.clone())?;
+            let rasterizer = Rasterizer::new(&target.font, font);
 
             for frame in 0..target.frame_count() {
                 let buffer = scene.render_frame(target, frame);
-                let img = rasterizer.rasterize(&buffer, &target.colors)?;
+                let img = rasterizer.rasterize(&buffer, &target.colors);
 
                 let frame_path = target_dir.join(format!("frame_{frame:04}.png"));
                 img.save(&frame_path)?;
