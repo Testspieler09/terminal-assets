@@ -6,7 +6,7 @@ edition.workspace = true
 license.workspace = true
 
 [dependencies]
+ab_glyph = { workspace = true }
 clap = { workspace = true }
 image = { workspace = true }
 ratatui = { workspace = true }
-ab_glyph = { workspace = true }

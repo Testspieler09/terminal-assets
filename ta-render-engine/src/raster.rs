@@ -7,6 +7,8 @@ use crate::{
     models::{CellSize, FontSettings},
 };
 
+// TODO: add the z index filter here by warping the raster / moving the cells
+
 pub struct Rasterizer<'a> {
     font: &'a FontVec,
     scale: PxScale,
@@ -78,7 +80,8 @@ impl<'a> Rasterizer<'a> {
         bold: bool,
     ) {
         let scale = if bold {
-            PxScale::from(self.scale.x * 1.0) // swap for a bold font if available
+            // TODO: find a better solution here
+            PxScale::from(self.scale.x) // swap for a bold font if available
         } else {
             self.scale
         };
@@ -97,6 +100,7 @@ impl<'a> Rasterizer<'a> {
                 outlined.draw(|gx, gy, cov| {
                     let px = bounds.min.x as u32 + gx;
                     let py = bounds.min.y as u32 + gy;
+                    // TODO: check if this is even needed or if it makes the image look less premium
                     if px < img.width() && py < img.height() {
                         let alpha = (cov * 255.0) as u8;
                         let pixel = img.get_pixel_mut(px, py);
@@ -110,6 +114,7 @@ impl<'a> Rasterizer<'a> {
 }
 
 fn measure_cell(font: &FontVec, scale: PxScale) -> CellSize {
+    // TODO: find a better solution here
     let scaled = font.as_scaled(scale);
     // Use 'M' as the reference glyph for monospace cell size
     let glyph_id = font.glyph_id('M');

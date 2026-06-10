@@ -11,16 +11,33 @@ use crate::{
     models::{FontSettings, OutputConfig},
 };
 
+#[derive(Clone, Copy, PartialEq, Eq, Hash)]
+pub enum GlobalTargetId {
+    // Ctr targets
+    CtrMain,
+    CtrSidebar,
+    // T09 targets
+    T09Intro,
+    T09Outro,
+}
+
 /// A single render target: one output config, one font, one layout.
 pub struct SceneTarget {
+    pub id: GlobalTargetId,
     pub output: OutputConfig,
     pub font: FontSettings,
     pub colors: ColorConfig,
 }
 
 impl SceneTarget {
-    pub fn new(output: OutputConfig, font: FontSettings, colors: ColorConfig) -> Self {
+    pub fn new(
+        id: GlobalTargetId,
+        output: OutputConfig,
+        font: FontSettings,
+        colors: ColorConfig,
+    ) -> Self {
         Self {
+            id,
             output,
             font,
             colors,
@@ -44,6 +61,7 @@ pub trait Scene {
     /// All targets this scene renders to. Called once by main at startup.
     fn targets(&self) -> Vec<SceneTarget>;
 
+    // TODO: think about how to encode the z-index here
     /// Render a single frame into a fresh buffer.
     ///
     /// - `target`  - the target currently being rendered

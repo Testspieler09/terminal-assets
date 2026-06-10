@@ -4,7 +4,7 @@ use ratatui::{
     widgets::{Block, Borders, Widget},
 };
 use ta_render_engine::{
-    Scene, SceneTarget,
+    GlobalTargetId, Scene, SceneTarget,
     color::ColorConfig,
     models::{AspectPreset, FontSettings, ImageOutput, OutputConfig},
 };
@@ -24,6 +24,7 @@ impl Scene for T09Scene {
         let cell = font.estimated_cell_size();
 
         vec![SceneTarget::new(
+            GlobalTargetId::T09Intro,
             OutputConfig::Image(ImageOutput::from_preset(AspectPreset::SixteenToNine, cell)),
             font.clone(),
             ColorConfig::default(),
@@ -31,10 +32,10 @@ impl Scene for T09Scene {
     }
 
     fn draw(&self, target: &SceneTarget, frame: usize, area: Rect, buffer: &mut Buffer) {
-        // differentiate layout per target via output type or dimensions
-        match &target.output {
-            OutputConfig::Image(_) => draw_top(area, buffer),
-            OutputConfig::Video(_) => draw_bottom(frame, area, buffer),
+        match &target.id {
+            GlobalTargetId::T09Intro => draw_top(area, buffer),
+            GlobalTargetId::T09Outro => draw_bottom(frame, area, buffer),
+            _ => {}
         }
     }
 }

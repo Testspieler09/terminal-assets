@@ -26,6 +26,8 @@ pub const DEFAULT_ANSI_PALETTE: [Rgb; 16] = [
     Rgb(255, 255, 255), // BrightWhite
 ];
 
+// TODO: add some more color schemes as an enum for convenience
+
 /// Per-target color configuration.
 #[derive(Clone, Debug)]
 pub struct ColorConfig {

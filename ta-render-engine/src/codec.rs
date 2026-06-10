@@ -176,7 +176,6 @@ fn encode_gif(
 fn run_ffmpeg(mut cmd: Command) -> Result<(), String> {
     let output = cmd.output().map_err(|e| {
         if e.kind() == std::io::ErrorKind::NotFound {
-            // bubble up as a distinct variant if needed
             "ffmpeg not found".to_string()
         } else {
             e.to_string()
