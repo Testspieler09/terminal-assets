@@ -27,6 +27,38 @@ pub(crate) struct CliArgs {
     #[arg(short, long, value_name = "DIR", required = true)]
     /// Directory to write rendered output into.
     pub(crate) output: PathBuf,
+
+    #[arg(long, value_name = "DIR", default_values_os_t = default_font_dirs())]
+    /// Directories to search for fonts. Defaults to OS font directories.
+    pub(crate) font_dirs: Vec<PathBuf>,
+}
+
+fn default_font_dirs() -> Vec<PathBuf> {
+    #[cfg(target_os = "macos")]
+    return vec![
+        PathBuf::from("/Library/Fonts"),
+        dirs::font_dir().unwrap_or_else(|| PathBuf::from("~/Library/Fonts")),
+    ];
+
+    #[cfg(target_os = "windows")]
+    return vec![
+        PathBuf::from(r"C:\Windows\Fonts"),
+        dirs::font_dir().unwrap_or_else(|| {
+            dirs::data_local_dir()
+                .map(|d| d.join("Microsoft/Windows/Fonts"))
+                .unwrap_or_else(|| PathBuf::from("."))
+        }),
+    ];
+
+    #[cfg(target_os = "linux")]
+    return vec![
+        PathBuf::from("/usr/share/fonts"),
+        PathBuf::from("/usr/local/share/fonts"),
+        dirs::font_dir().unwrap_or_else(|| PathBuf::from("~/.fonts")),
+    ];
+
+    #[cfg(not(any(target_os = "macos", target_os = "windows", target_os = "linux")))]
+    return vec![PathBuf::from(".")];
 }
 
 impl CliArgs {

@@ -10,4 +10,5 @@ ta-render-engine = { path = "../ta-render-engine/" }
 
 anyhow = { workspace = true }
 clap = { workspace = true }
+dirs = { workspace = true }
 ratatui = { workspace = true }

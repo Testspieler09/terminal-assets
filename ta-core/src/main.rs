@@ -35,7 +35,7 @@ fn main() -> anyhow::Result<()> {
         let scene_out = args.output.join(scene.name());
         std::fs::create_dir_all(&scene_out)?;
 
-        let mut font_cache = FontCache::default();
+        let mut font_cache = FontCache::new(args.font_dirs.clone());
 
         for (target_index, target) in scene.targets().iter().enumerate() {
             let target_dir = scene_out.join(format!("target_{target_index:02}"));

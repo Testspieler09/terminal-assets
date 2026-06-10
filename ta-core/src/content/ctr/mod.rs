@@ -19,7 +19,7 @@ impl Scene for CtrScene {
 
     fn targets(&self) -> Vec<SceneTarget> {
         let font = FontSettings {
-            font_path: "assets/font.ttf".into(),
+            font_path: "FiraMonoNerdFont-Regular.otf".into(),
             font_size: 16.0,
         };
         let cell = font.estimated_cell_size();

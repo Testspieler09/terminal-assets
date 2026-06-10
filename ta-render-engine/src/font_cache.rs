@@ -2,15 +2,44 @@ use std::{collections::HashMap, path::PathBuf};
 
 use ab_glyph::FontVec;
 
-#[derive(Default)]
 pub struct FontCache {
+    font_dirs: Vec<PathBuf>,
     fonts: HashMap<PathBuf, FontVec>,
 }
 
 impl FontCache {
+    pub fn new(font_dirs: Vec<PathBuf>) -> Self {
+        Self {
+            font_dirs,
+            fonts: Default::default(),
+        }
+    }
+
     pub fn load_and_insert_font(&mut self, font_key: PathBuf) -> Result<&FontVec, FontCacheError> {
         if !self.fonts.contains_key(&font_key) {
-            let bytes = std::fs::read(&font_key)
+            let resolved = if font_key.exists() {
+                font_key.clone()
+            } else {
+                self.font_dirs
+                    .iter()
+                    .map(|dir| dir.join(&font_key))
+                    .find(|p| p.exists())
+                    .ok_or_else(|| {
+                        let searched = self
+                            .font_dirs
+                            .iter()
+                            .map(|d| format!("  - {}", d.join(&font_key).display()))
+                            .collect::<Vec<_>>()
+                            .join("\n");
+                        FontCacheError::FileNotFound(format!(
+                            "font '{}' not found at any of:\n{}",
+                            font_key.display(),
+                            searched
+                        ))
+                    })?
+            };
+
+            let bytes = std::fs::read(&resolved)
                 .map_err(|e| FontCacheError::FileNotFound(e.to_string()))?;
             let font = FontVec::try_from_vec(bytes)
                 .map_err(|e| FontCacheError::FontLoad(e.to_string()))?;
