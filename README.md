@@ -2,6 +2,10 @@
 
 A CLI tool for rendering text-based animations to video. Define scenes in code, render them to frames, and encode the result to MP4, WebM, or GIF - with full control over fonts, colors, and output format.
 
+## Defining Scenes
+
+Scenes are defined directly in Rust source and compiled into the binary. Adding or editing a scene requires editing the source and recompiling with `cargo b` / `cargo b --release`.
+
 ## Features
 
 - **Scene rendering** - render one scene by name, a selection, or all scenes at once
