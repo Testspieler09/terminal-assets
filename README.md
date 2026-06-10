@@ -1,6 +1,32 @@
-# terminal-assets
-A repository containing background images and assets that have the terminal charm / flavor to them.
+# terminal-assets (ta)
 
-## TODO
-- use ratatui and rust to set up a framework for easy content creation
-- create some assets with e.g. the ascii temple for 3ds custom themes and arch linux setup.
+A CLI tool for rendering text-based animations to video. Define scenes in code, render them to frames, and encode the result to MP4, WebM, or GIF - with full control over fonts, colors, and output format.
+
+## Features
+
+- **Scene rendering** - render one scene by name, a selection, or all scenes at once
+- **Interactive mode** - TUI scene selector for picking what to render without memorizing names
+- **Multiple output formats** - H.264 (MP4), VP9 (WebM), and GIF via ffmpeg
+- **Font loading with fallback** - specify a font by filename; the tool searches your provided font directories and falls back to OS font directories automatically (macOS user and system folders, Linux system fonts, Windows Fonts)
+- **Font caching** - fonts shared across targets in a scene are loaded from disk once and reused
+- **Configurable output directory** - all rendered frames and encoded videos are written to a directory of your choice
+- **Environment check script** - `check_ffmpeg.sh` verifies your ffmpeg installation, codec support (H.264, VP9, GIF, palette filters), and shared library linkage before you run a render
+
+## Usage
+
+```
+ta-core --output <DIR> [--scenes <SCENE>...] [--interactive] [--all] [--font-dirs <DIR>...]
+```
+
+| Flag | Description |
+|---|---|
+| `--output` | Directory to write rendered output into (required) |
+| `--scenes` | One or more scene names to render |
+| `--interactive` | Open TUI to select scenes |
+| `--all` | Render all scenes (default when no mode flag is given) |
+| `--font-dirs` | Font search directories (defaults to OS font paths) |
+
+## Requirements
+
+- ffmpeg with libx264, libvpx-vp9, and palette filter support
+- Run `./check_ffmpeg.sh` to verify your environment before first use

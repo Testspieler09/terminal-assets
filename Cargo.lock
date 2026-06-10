@@ -2099,7 +2099,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "ta-core"
+name = "ta"
 version = "0.1.0"
 dependencies = [
  "anyhow",
