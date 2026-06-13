@@ -6,7 +6,7 @@ use ratatui::{
 use ta_render_engine::{
     GlobalTargetId, Scene, SceneTarget,
     codec::VideoCodec,
-    color::ColorConfig,
+    color::ColorScheme,
     models::{AspectPreset, FontSettings, Grid, ImageOutput, OutputConfig, VideoOutput},
 };
 
@@ -20,6 +20,7 @@ impl Scene for CtrScene {
     fn targets(&self) -> Vec<SceneTarget> {
         let font = FontSettings {
             font_path: "FiraMonoNerdFont-Regular.otf".into(),
+            bold_font_path: None,
             font_size: 16.0,
         };
         let cell = font.estimated_cell_size();
@@ -29,7 +30,7 @@ impl Scene for CtrScene {
                 GlobalTargetId::CtrMain,
                 OutputConfig::Image(ImageOutput::from_preset(AspectPreset::CtrTopScreen, cell)),
                 font.clone(),
-                ColorConfig::default(),
+                ColorScheme::Dracula.into(),
             ),
             SceneTarget::new(
                 GlobalTargetId::CtrSidebar,
@@ -40,7 +41,7 @@ impl Scene for CtrScene {
                     VideoCodec::Gif,
                 )),
                 font.clone(),
-                ColorConfig::default(),
+                ColorScheme::Classic.into(),
             ),
         ]
     }

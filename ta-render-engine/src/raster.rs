@@ -11,16 +11,18 @@ use crate::{
 
 pub struct Rasterizer<'a> {
     font: &'a FontVec,
+    bold_font: Option<&'a FontVec>,
     scale: PxScale,
     cell_size: CellSize,
 }
 
 impl<'a> Rasterizer<'a> {
-    pub fn new(settings: &FontSettings, font: &'a FontVec) -> Self {
+    pub fn new(settings: &FontSettings, font: &'a FontVec, bold_font: Option<&'a FontVec>) -> Self {
         let scale = PxScale::from(settings.font_size);
         let cell_size = measure_cell(font, scale);
         Self {
             font,
+            bold_font,
             scale,
             cell_size,
         }
@@ -79,32 +81,37 @@ impl<'a> Rasterizer<'a> {
         fg: Rgb,
         bold: bool,
     ) {
-        let scale = if bold {
-            // TODO: find a better solution here
-            PxScale::from(self.scale.x) // swap for a bold font if available
+        let (font, scale) = if bold {
+            (self.bold_font.unwrap_or(self.font), self.scale)
         } else {
-            self.scale
+            (self.font, self.scale)
         };
 
-        let scaled = self.font.as_scaled(scale);
+        let scaled = font.as_scaled(scale);
 
         for ch in symbol.chars() {
-            let glyph_id = self.font.glyph_id(ch);
+            let glyph_id = font.glyph_id(ch);
             let glyph: Glyph = glyph_id.with_scale_and_position(
                 scale,
                 ab_glyph::point(cell_x as f32, cell_y as f32 + scaled.ascent()),
             );
 
-            if let Some(outlined) = self.font.outline_glyph(glyph) {
+            if let Some(outlined) = font.outline_glyph(glyph) {
                 let bounds = outlined.px_bounds();
+                // TODO: try this as well and compare the results
+                // outlined.draw(|gx, gy, cov| {
+                //     let px = bounds.min.x as u32 + gx;
+                //     let py = bounds.min.y as u32 + gy;
+                //     if px < img.width() && py < img.height() && cov > 0.5 {
+                //         img.put_pixel(px, py, Rgba([fg.0, fg.1, fg.2, 255]));
+                //     }
+                // });
                 outlined.draw(|gx, gy, cov| {
                     let px = bounds.min.x as u32 + gx;
                     let py = bounds.min.y as u32 + gy;
-                    // TODO: check if this is even needed or if it makes the image look less premium
                     if px < img.width() && py < img.height() {
                         let alpha = (cov * 255.0) as u8;
                         let pixel = img.get_pixel_mut(px, py);
-                        // alpha-blend over background
                         *pixel = blend(*pixel, fg, alpha);
                     }
                 });
@@ -114,9 +121,9 @@ impl<'a> Rasterizer<'a> {
 }
 
 fn measure_cell(font: &FontVec, scale: PxScale) -> CellSize {
-    // TODO: find a better solution here
     let scaled = font.as_scaled(scale);
-    // Use 'M' as the reference glyph for monospace cell size
+    // 'M' is the conventional reference glyph for monospace advance width
+    // (widest uppercase letter in most fonts, reliable across typefaces)
     let glyph_id = font.glyph_id('M');
     let advance = scaled.h_advance(glyph_id);
     let height = scaled.ascent() - scaled.descent() + scaled.line_gap();

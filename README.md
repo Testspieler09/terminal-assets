@@ -5,6 +5,7 @@ A CLI tool for rendering text-based animations to video. Define scenes in code, 
 ## Defining Scenes
 
 Scenes are defined directly in Rust source and compiled into the binary. Adding or editing a scene requires editing the source and recompiling with `cargo b` / `cargo b --release`.
+Otherwise running it directly with `cargo run -- <args>` is also an option.
 
 ## Features
 

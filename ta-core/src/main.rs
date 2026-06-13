@@ -41,8 +41,11 @@ fn main() -> anyhow::Result<()> {
             let target_dir = scene_out.join(format!("target_{target_index:02}"));
             std::fs::create_dir_all(&target_dir)?;
 
-            let font = font_cache.load_and_insert_font(target.font.font_path.clone())?;
-            let rasterizer = Rasterizer::new(&target.font, font);
+            let (font, bold_font) = font_cache.load_font_pair(
+                target.font.font_path.clone(),
+                target.font.bold_font_path.clone(),
+            )?;
+            let rasterizer = Rasterizer::new(&target.font, font, bold_font);
 
             for frame in 0..target.frame_count() {
                 let buffer = scene.render_frame(target, frame);
@@ -52,7 +55,6 @@ fn main() -> anyhow::Result<()> {
                 img.save(&frame_path)?;
             }
 
-            // encode video if needed
             if let OutputConfig::Video(ref video) = target.output {
                 let ext = match &video.codec {
                     VideoCodec::H264 { .. } => "mp4",

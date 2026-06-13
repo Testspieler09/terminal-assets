@@ -154,6 +154,7 @@ impl VideoOutput {
 #[derive(Clone)]
 pub struct FontSettings {
     pub font_path: PathBuf,
+    pub bold_font_path: Option<PathBuf>,
     /// Point size passed to ab_glyph's [`PxScale`]
     pub font_size: f32,
 }

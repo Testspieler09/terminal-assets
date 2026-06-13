@@ -47,6 +47,20 @@ impl FontCache {
         }
         Ok(self.fonts.get(&font_key).unwrap())
     }
+
+    pub fn load_font_pair(
+        &mut self,
+        font_path: PathBuf,
+        bold_font_path: Option<PathBuf>,
+    ) -> Result<(&FontVec, Option<&FontVec>), FontCacheError> {
+        self.load_and_insert_font(font_path.clone())?;
+        if let Some(ref p) = bold_font_path {
+            self.load_and_insert_font(p.clone())?;
+        }
+        let font = self.fonts.get(&font_path).unwrap();
+        let bold = bold_font_path.as_ref().and_then(|p| self.fonts.get(p));
+        Ok((font, bold))
+    }
 }
 
 #[derive(Debug)]

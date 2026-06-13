@@ -5,7 +5,7 @@ use ratatui::{
 };
 use ta_render_engine::{
     GlobalTargetId, Scene, SceneTarget,
-    color::ColorConfig,
+    color::ColorScheme,
     models::{AspectPreset, FontSettings, ImageOutput, OutputConfig},
 };
 
@@ -19,6 +19,7 @@ impl Scene for T09Scene {
     fn targets(&self) -> Vec<SceneTarget> {
         let font = FontSettings {
             font_path: "FiraMonoNerdFont-Regular.otf".into(),
+            bold_font_path: None,
             font_size: 16.0,
         };
         let cell = font.estimated_cell_size();
@@ -27,7 +28,7 @@ impl Scene for T09Scene {
             GlobalTargetId::T09Intro,
             OutputConfig::Image(ImageOutput::from_preset(AspectPreset::SixteenToNine, cell)),
             font.clone(),
-            ColorConfig::default(),
+            ColorScheme::Nord.into(),
         )]
     }
 
