@@ -1,6 +1,7 @@
 use clap::Parser;
 use ta_render_engine::{
     Scene,
+    buffers::FrameBuffer,
     codec::{VideoCodec, encode_video},
     font_cache::FontCache,
     models::OutputConfig,
@@ -48,8 +49,13 @@ fn main() -> anyhow::Result<()> {
             let rasterizer = Rasterizer::new(&target.font, font, bold_font);
 
             for frame in 0..target.frame_count() {
-                let buffer = scene.render_frame(target, frame);
-                let img = rasterizer.rasterize(&buffer, &target.colors);
+                let frame_buffer = scene.render_frame(target, frame);
+                let img = match frame_buffer {
+                    FrameBuffer::Flat(buf) => rasterizer.rasterize(&buf, &target.colors),
+                    FrameBuffer::Layered(buf, depth_effect) => {
+                        rasterizer.rasterize_layered(&buf, &target.colors, &depth_effect)
+                    }
+                };
 
                 let frame_path = target_dir.join(format!("frame_{frame:04}.png"));
                 img.save(&frame_path)?;

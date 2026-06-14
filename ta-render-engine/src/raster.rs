@@ -3,11 +3,11 @@ use image::{Rgba, RgbaImage};
 use ratatui::{buffer::Buffer, style::Modifier};
 
 use crate::{
+    buffers::LayeredBuffer,
     color::{ColorConfig, Rgb},
+    depth_effect::DepthEffect,
     models::{CellSize, FontSettings},
 };
-
-// TODO: add the z index filter here by warping the raster / moving the cells
 
 pub struct Rasterizer<'a> {
     font: &'a FontVec,
@@ -69,6 +69,25 @@ impl<'a> Rasterizer<'a> {
             }
         }
 
+        img
+    }
+
+    pub fn rasterize_layered(
+        &self,
+        layered: &LayeredBuffer,
+        colors: &ColorConfig,
+        effect: &DepthEffect,
+    ) -> RgbaImage {
+        let area = layered.area();
+        let w = area.width as u32 * self.cell_size.width;
+        let h = area.height as u32 * self.cell_size.height;
+        let mut img = RgbaImage::new(w, h);
+
+        for (z, buffer) in layered.layers() {
+            let (dx, dy) = effect.offset_for(*z);
+            let layer_img = self.rasterize(buffer, colors);
+            image::imageops::overlay(&mut img, &layer_img, dx as i64, dy as i64);
+        }
         img
     }
 

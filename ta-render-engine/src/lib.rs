@@ -1,5 +1,7 @@
+pub mod buffers;
 pub mod codec;
 pub mod color;
+pub mod depth_effect;
 pub mod font_cache;
 pub mod models;
 pub mod raster;
@@ -7,6 +9,7 @@ pub mod raster;
 use ratatui::{buffer::Buffer, layout::Rect};
 
 use crate::{
+    buffers::FrameBuffer,
     color::ColorConfig,
     models::{FontSettings, OutputConfig},
 };
@@ -61,18 +64,17 @@ pub trait Scene {
     /// All targets this scene renders to. Called once by main at startup.
     fn targets(&self) -> Vec<SceneTarget>;
 
-    // TODO: think about how to encode the z-index here
     /// Render a single frame into a fresh buffer.
     ///
     /// - `target`  - the target currently being rendered
     /// - `frame`   - current frame index (always 0 for images)
     ///
     /// The buffer is pre-sized to `target.output.rect()`.
-    fn render_frame(&self, target: &SceneTarget, frame: usize) -> Buffer {
+    fn render_frame(&self, target: &SceneTarget, frame: usize) -> FrameBuffer {
         let rect = target.output.rect();
         let mut buffer = Buffer::empty(rect);
         self.draw(target, frame, rect, &mut buffer);
-        buffer
+        buffer.into()
     }
 
     /// Where the actual ratatui widget drawing happens.
