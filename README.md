@@ -20,7 +20,7 @@ Otherwise running it directly with `cargo run -- <args>` is also an option.
 ## Usage
 
 ```
-ta-core --output <DIR> [--scenes <SCENE>...] [--interactive] [--all] [--font-dirs <DIR>...]
+ta --output <DIR> [--scenes <SCENE>...] [--interactive] [--all] [--font-dirs <DIR>...]
 ```
 
 | Flag | Description |
